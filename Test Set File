@@ -1,0 +1,45 @@
+test_df = pd.read_csv("test.csv")
+
+Test DF Summary & Statistics
+
+test_df.head()
+test_df.describe()
+test_df.info()
+test_df.isnull().sum()
+
+Filling Missing Values
+
+numerical_columns = train_df.select_dtypes(include=['float64', 'int64']).columns.tolist()
+for col in numerical_columns:
+    if col in test_df.columns:
+        mean_val = train_df[col].mean()  # Compute mean from the training data
+        test_df[col].fillna(mean_val, inplace=True)  # Fill missing values in the test data with the mean from the training data
+# Ensure 'SalePrice' is not in the list of numerical columns for test_df
+if 'SalePrice' in numerical_columns:
+    numerical_columns.remove('SalePrice')# Filter out columns that don't exist in test_df
+numerical_columns = [col for col in numerical_columns if col in test_df.columns]
+
+# Ensure 'SalePrice' is not in the list of numerical columns for test_df
+if 'SalePrice' in numerical_columns:
+    numerical_columns.remove('SalePrice')
+
+# Now, let's check the missing values in the updated numerical columns for test_df
+test_df[numerical_columns].isnull().sum()
+
+
+# Now, let's check the missing values in the updated numerical columns for test_df
+test_df[numerical_columns].isnull().sum()
+
+test_df[numerical_columns].isnull().sum()
+
+if 'SalePrice' in numerical_columns:
+    numerical_columns.remove('SalePrice')
+
+for col in numerical_columns:
+    mean_val = train_df[col].mean()  # Compute mean from the training data
+    test_df[col].fillna(mean_val, inplace=True)  # Fill missing values in the test data with the mean from the training data
+
+    categorical_columns = train_df.select_dtypes(include=['object']).columns.tolist()
+for col in categorical_columns:
+    test_df[col].fillna("Missing", inplace=True)
+
