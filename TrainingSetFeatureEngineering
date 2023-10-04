@@ -1,0 +1,8 @@
+Combining two features
+
+# Create a new feature: TotalSF = 1stFlrSF + 2ndFlrSF
+train_df["TotalSF"] = train_df["1stFlrSF"] + train_df["2ndFlrSF"]
+
+train_df["TotalBath"] = train_df["FullBath"] + 0.5*train_df["HalfBath"] + train_df["BsmtFullBath"] + 0.5*train_df["BsmtHalfBath"]
+train_df["LogSalePrice"] = np.log1p(train_df["SalePrice"])
+train_df["AvgRoomSize"] = train_df["GrLivArea"] / train_df["TotRmsAbvGrd"]
