@@ -1,8 +1,11 @@
 # House Price Prediction - Kaggle Competition
 
-## Medium Article (Click Here to View Submission): https://medium.com/@aknour/house-prices-advanced-regression-techniques-395fe629a0cd
-## Kaggle Competition (Click Here to View Competition Details): https://www.kaggle.com/competitions/house-prices-advanced-regression-techniques/data
-## Jupyter Notebook: https://anaconda.cloud/api/nbserve/launch_notebook?nb_url=https%3A%2F%2Fanaconda.cloud%2Fapi%2Fprojects%2Faab9fa4e-118c-4610-8d86-dde7495244a0%2Fversions%2F240680d0-1781-4ba3-9ed9-a74d72f47dc9%2Ffiles%2FHPART.ipynb
+## Medium Article (Click Here to View Submission): 
+https://medium.com/@aknour/house-prices-advanced-regression-techniques-395fe629a0cd
+## Kaggle Competition (Click Here to View Competition Details):
+https://www.kaggle.com/competitions/house-prices-advanced-regression-techniques/data
+## Jupyter Notebook:
+https://anaconda.cloud/api/nbserve/launch_notebook?nb_url=https%3A%2F%2Fanaconda.cloud%2Fapi%2Fprojects%2Faab9fa4e-118c-4610-8d86-dde7495244a0%2Fversions%2F240680d0-1781-4ba3-9ed9-a74d72f47dc9%2Ffiles%2FHPART.ipynb
 
 ## Overview
 This project is an in-depth analysis and predictive modeling of house prices. Using a comprehensive dataset provided by Kaggle, the goal was to predict house sale prices based on a variety of features.
