@@ -1,0 +1,114 @@
+Model Tuning & Evaluation (Model Selection & Training; Root Mean Squared Error [RMSE])
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
+from sklearn.linear_model import LinearRegression, Ridge, Lasso
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
+
+# Assuming train_df is already defined and loaded with your data
+
+# Feature Engineering
+train_df["TotalSF"] = train_df["1stFlrSF"] + train_df["2ndFlrSF"]
+
+# Selecting multiple features
+features = ['TotalSF', 'OverallQual', 'GrLivArea', 'GarageCars']  # You can add more features as needed
+X = train_df[features]
+y = np.log1p(train_df["SalePrice"])  # Predicting log-transformed prices to handle skewness
+
+# Splitting the data
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Feature Scaling
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# Model Training - Linear Regression
+model = LinearRegression()
+model.fit(X_train_scaled, y_train)
+y_pred = model.predict(X_test_scaled)
+
+# Model Evaluation
+mse = mean_squared_error(y_test, y_pred)
+rmse = np.sqrt(mse)
+r2 = r2_score(y_test, y_pred)
+mae = mean_absolute_error(y_test, y_pred)
+
+print(f"Mean Squared Error: {mse}")
+print(f"Root Mean Squared Error: {rmse}")
+print(f"R-squared: {r2}")
+print(f"Mean Absolute Error: {mae}")
+
+# Cross-Validation
+scores = cross_val_score(model, X, y, cv=5, scoring='neg_mean_squared_error')
+avg_rmse = np.mean(np.sqrt(-scores))
+print(f"Cross-validated RMSE: {avg_rmse}")
+
+# Optionally, you can introduce Ridge or Lasso Regression and perform hyperparameter tuning
+# Here's an example using Ridge Regression:
+
+ridge = Ridge()
+parameters = {'alpha': [0.01, 0.1, 1, 10, 100]}
+grid_search = GridSearchCV(ridge, parameters, scoring='neg_mean_squared_error', cv=5)
+grid_search.fit(X_train_scaled, y_train)
+
+best_ridge = grid_search.best_estimator_
+y_pred_ridge = best_ridge.predict(X_test_scaled)
+ridge_rmse = np.sqrt(mean_squared_error(y_test, y_pred_ridge))
+print(f"Ridge Regression RMSE: {ridge_rmse}")
+print(f"Best Parameters: {grid_search.best_params_}")
+
+from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
+
+# Using GridSearchCV for Ridge Regression
+ridge = Ridge()
+ridge_params = {'alpha': [0.001, 0.01, 0.1, 1, 10, 100, 1000]}
+
+grid_search_ridge = GridSearchCV(ridge, ridge_params, cv=5, scoring='neg_mean_squared_error', n_jobs=-1)
+grid_search_ridge.fit(X_train_scaled, y_train)
+
+print(f"Best Ridge Alpha: {grid_search_ridge.best_params_}")
+print(f"Best Ridge RMSE: {np.sqrt(-grid_search_ridge.best_score_)}")
+
+# Using RandomizedSearchCV for Lasso Regression
+lasso = Lasso()
+lasso_params = {'alpha': np.logspace(-5, 1, 100)}
+
+random_search_lasso = RandomizedSearchCV(lasso, lasso_params, n_iter=20, cv=5, scoring='neg_mean_squared_error', n_jobs=-1, random_state=42)
+random_search_lasso.fit(X_train_scaled, y_train)
+
+print(f"Best Lasso Alpha: {random_search_lasso.best_params_}")
+print(f"Best Lasso RMSE: {np.sqrt(-random_search_lasso.best_score_)}")
+
+Training the Final Model: 
+
+from sklearn.linear_model import Ridge
+from sklearn.preprocessing import StandardScaler
+
+# Assuming you already split the data and have train_df ready
+# If you've added more features, remember to include them here
+features = ["TotalSF", "OverallQual", "GrLivArea", "GarageCars", "GarageArea", "TotalBsmtSF", "1stFlrSF", "FullBath", "TotRmsAbvGrd", "YearBuilt", "YearRemodAdd"]
+X = train_df[features]
+y = train_df["SalePrice"]
+
+# Scale the features
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# 1. Train the final model using best hyperparameters
+# Assuming you have already found the best alpha during grid search
+best_alpha = grid_search_ridge.best_params_['alpha']
+
+final_model = Ridge(alpha=best_alpha)
+final_model.fit(X_scaled, y)
+
+# 2. Make predictions on new/unseen data
+# Here, as an example, I'm using X_test, but replace it with your new data when you have it
+# Remember to preprocess your new data exactly as you did with your training data
+
+# X_new = ...  # This should be your raw new data
+# X_new_scaled = scaler.transform(X_new)  # Scale the new data
+
+# predictions = final_model.predict(X_new_scaled)
+
