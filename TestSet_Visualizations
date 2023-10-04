@@ -1,0 +1,37 @@
+# 1. Compute the correlation using train_df
+correlation = train_df[numerical_columns].corrwith(train_df["SalePrice"]).sort_values(ascending=False)
+
+# 2. Select the top 5 features with highest absolute correlation
+top_5_features = correlation.abs().nlargest(5).index.tolist()
+
+# 3. Plot histograms for these top 5 features using test_df
+test_df[top_5_features].hist(bins=50, figsize=(20,15))
+plt.tight_layout()
+plt.show()
+
+
+# Compute the correlation of each numerical feature with SalePrice in train_df
+correlation_train = train_df[numerical_columns].corrwith(train_df["SalePrice"]).sort_values(ascending=False)
+
+# Select the top 20 features with the highest absolute correlation
+top_20_features = correlation_train.abs().nlargest(20).index.tolist()
+
+# Using top_20_features to make a readable heatmap for test_df
+subset_df_test = test_df[top_20_features]
+
+plt.figure(figsize=(15, 12))
+sns.heatmap(subset_df_test.corr(), annot=True, cmap='coolwarm', center=0, fmt='.2f', linewidths=.5)
+plt.tight_layout()
+plt.show()
+
+# Selecting the top 5 features from our previously identified list
+top_5_features = top_20_features[:5]
+
+# Create scatter plots for the top 5 features against SalePrice
+for feature in top_5_features:
+    plt.figure(figsize=(8,6))
+    sns.scatterplot(x=train_df[feature], y=train_df['SalePrice'])
+    plt.title(f"Scatter plot of {feature} vs. SalePrice")
+    plt.tight_layout()
+    plt.show()
+
