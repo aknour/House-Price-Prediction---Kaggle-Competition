@@ -1,0 +1,183 @@
+Model Selection & Training: Root Mean Squared Error (RMSE)
+# Calculate correlation with SalePrice
+correlation_train = train_df.corrwith(train_df["SalePrice"]).sort_values(ascending=False)
+top_10_features_train = correlation_train.abs().nlargest(11).index.tolist()
+top_10_features_train.remove("SalePrice")  # Remove SalePrice from features
+
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_squared_error
+
+# Data Preparation
+X = train_df[top_10_features_train]
+y = np.log1p(train_df['SalePrice'])  # Predicting the log of SalePrice
+X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Baseline Random Forest Regressor
+rf = RandomForestRegressor(n_estimators=100, random_state=42)
+rf.fit(X_train, y_train)
+
+# Predict on validation set
+y_pred = rf.predict(X_val)
+mse = mean_squared_error(y_val, y_pred)
+print(f"Baseline MSE: {mse}")
+
+# Model Tuning using GridSearchCV
+param_grid = {
+    'n_estimators': [50, 100, 150],
+    'max_depth': [None, 10, 20, 30],
+    'min_samples_split': [2, 5, 10],
+    'min_samples_leaf': [1, 2, 4]
+}
+
+grid_search = GridSearchCV(estimator=rf, param_grid=param_grid, 
+                           cv=3, n_jobs=-1, verbose=2, scoring='neg_mean_squared_error')
+grid_search.fit(X_train, y_train)
+
+# Get the best estimator
+best_rf = grid_search.best_estimator_
+
+# Predict using the best model
+y_pred_best = best_rf.predict(X_val)
+mse_best = mean_squared_error(y_val, y_pred_best)
+print(f"Tuned MSE: {mse_best}")
+
+# Calculate RMSE for the baseline model
+rmse_baseline = np.sqrt(mse)
+print(f"Baseline RMSE: {rmse_baseline:.4f}")
+
+# ...
+
+# Calculate RMSE for the tuned model
+rmse_tuned = np.sqrt(mse_best)
+print(f"Tuned RMSE: {rmse_tuned:.4f}")
+
+Feature Alignment:
+missing_cols = set(train_df.columns) - set(test_df.columns)
+for c in missing_cols:
+    test_df[c] = 0
+test_df = test_df[train_df.columns]
+
+Model Training on Entire Training Set
+from sklearn.ensemble import RandomForestRegressor
+
+rf_regressor = RandomForestRegressor(n_estimators=100, random_state=42)  # You can tweak the hyperparameters
+rf_regressor.fit(X_train, y_train)
+
+# Once trained, the model (rf_regressor) is ready to make predictions on new unseen data.
+
+Predictions on Test Set: 
+X_test_final = test_df[features] # Make sure 'features' has all the required columns
+y_pred_final = final_model.predict(X_test_final)
+
+X_test_final = test_df[features]  # Make sure 'features' has all the required columns
+y_pred_final = final_model.predict(X_test_final)
+
+from sklearn.metrics import r2_score
+score = r2_score(y_test, y_pred)
+print(f"R^2 Score: {score}")
+#Inspecting Residuals
+
+import matplotlib.pyplot as plt
+
+residuals = y_test - y_pred
+plt.scatter(y_test, residuals)
+plt.axhline(y=0, color='r', linestyle='-')
+plt.xlabel("Actual Values")
+plt.ylabel("Residuals")
+plt.title("Residual Plot")
+plt.show()
+
+import numpy as np
+
+# Using the Ridge Regression model to predict
+y_pred_final_log = final_model.predict(X_test_final)
+
+# Transforming predictions back to original scale
+y_pred_final_actual = np.expm1(y_pred_final_log)
+
+# Displaying the first few predictions
+print(y_pred_final_actual[:10])  # Displaying the first 10 predictions for demonstration
+
+# Assuming `X_train` is your training data
+train_features = X_train.columns.tolist()
+test_features = X_test_final.columns.tolist()
+
+# Check if they are the same
+if train_features != test_features:
+    print("Mismatched features detected!")
+    print("Features in training but not in test:", set(train_features) - set(test_features))
+    print("Features in test but not in training:", set(test_features) - set(train_features))
+else:
+    print("Features match!")
+
+# Create a dedicated copy of X_test_final
+X_test_final_copy = X_test_final.copy()
+
+# List of columns to potentially drop from X_train
+cols_to_drop = ['LogSalePrice', 'ExterQual_TA', 'TotalBath']
+
+# Identify columns that exist in X_train from the list
+existing_cols_to_drop = [col for col in cols_to_drop if col in X_train.columns]
+
+# Drop the existing columns
+X_train = X_train.drop(columns=existing_cols_to_drop)
+
+# Add the missing dummy features to X_test_final_copy
+for feature in ['TotRmsAbvGrd', 'FullBath', 'YearRemodAdd', 'YearBuilt']:
+    X_test_final_copy[feature] = 0
+
+# Check for mismatched features after modifications
+train_features_after = X_train.columns.tolist()
+test_features_after = X_test_final_copy.columns.tolist()
+
+if train_features_after != test_features_after:
+    print("Mismatched features detected!")
+    print("Features in training but not in test:", set(train_features_after) - set(test_features_after))
+    print("Features in test but not in training:", set(test_features_after) - set(train_features_after))
+else:
+    print("Features match!")
+
+# Reorder columns in X_test_final_copy to match X_train
+X_test_final_copy = X_test_final_copy[X_train.columns]
+
+# Check again for mismatched features after reordering
+train_features_after = X_train.columns.tolist()
+test_features_after = X_test_final_copy.columns.tolist()
+
+if train_features_after != test_features_after:
+    print("Mismatched features detected!")
+    print("Features in training but not in test:", set(train_features_after) - set(test_features_after))
+    print("Features in test but not in training:", set(test_features_after) - set(train_features_after))
+else:
+    print("Features match!")
+
+print("Number of features in X_train:", X_train.shape[1])
+print("Number of features in X_test_final_copy:", X_test_final_copy.shape[1])
+# Get features from the model
+try:
+    model_features = final_model.coef_.shape[0]
+except AttributeError:
+    # Handle case where model doesn't have coef_ attribute
+    model_features = None
+
+print("Number of features in final_model:", model_features)
+
+# Display features of X_train and X_test_final_copy
+print("\nFeatures of X_train:", X_train.columns.tolist())
+print("\nFeatures of X_test_final_copy:", X_test_final_copy.columns.tolist())
+
+Retraining the Model: 
+from sklearn.linear_model import Ridge
+
+# Assuming you have y_train which is the target variable for your training data
+ridge_model = Ridge()
+ridge_model.fit(X_train, y_train)
+
+# Now predict on X_test_final_copy
+y_pred_final_log = ridge_model.predict(X_test_final_copy)
+y_pred_final_actual = np.expm1(y_pred_final_log)
+
+# Displaying the first few predictions
+print(y_pred_final_actual[:20])
+
