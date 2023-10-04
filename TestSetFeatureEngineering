@@ -1,0 +1,40 @@
+Feature Scaling
+Standard Scaling
+from sklearn.preprocessing import StandardScaler
+
+# Instantiate the scaler
+scaler = StandardScaler()
+
+# Fit the scaler to the training data
+train_df[numerical_columns] = scaler.fit_transform(train_df[numerical_columns])
+
+# Transform the test data using the same scaler
+test_df[numerical_columns] = scaler.transform(test_df[numerical_columns])
+
+Min_max Scaling: 
+from sklearn.preprocessing import MinMaxScaler
+
+# Instantiate the scaler
+scaler = MinMaxScaler()
+
+# Fit the scaler to the training data
+train_df[numerical_columns] = scaler.fit_transform(train_df[numerical_columns])
+
+# Transform the test data using the same scaler
+test_df[numerical_columns] = scaler.transform(test_df[numerical_columns])
+
+Encoding Categorical Variables: One-Hot Encoding
+train_df = pd.get_dummies(train_df, columns=categorical_columns, drop_first=True)
+test_df = pd.get_dummies(test_df, columns=categorical_columns, drop_first=True)
+
+Feature Engineering
+# Create a new feature: TotalSF = 1stFlrSF + 2ndFlrSF
+test_df["TotalSF"] = test_df["1stFlrSF"] + test_df["2ndFlrSF"]
+
+# Create a new feature: TotalBath
+test_df["TotalBath"] = test_df["FullBath"] + 0.5*test_df["HalfBath"] + test_df["BsmtFullBath"] + 0.5*test_df["BsmtHalfBath"]
+
+# Since the 'SalePrice' column may not be present in the test dataset (depending on the kind of problem setup you have), we'll skip the 'LogSalePrice' feature engineering step for the test dataset.
+
+# Create a new feature: AvgRoomSize
+test_df["AvgRoomSize"] = test_df["GrLivArea"] / test_df["TotRmsAbvGrd"]
